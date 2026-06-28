@@ -5,8 +5,8 @@
 #include "time.h"
 
 // --- WiFi ---
-char ssid[] = "Khe?";
-char pass[] = "no se mano";
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
 
 // --- MQTT ---
 const char* mqtt_server = "161.132.54.24";

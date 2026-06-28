@@ -3,8 +3,8 @@
 //#include "arduino_secrets.h"
 
 // --- WiFi ---
-char ssid[] = "TOVAR";
-char pass[] = "29719073";
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
 
 // --- MQTT ---
 const char* mqtt_server = "161.132.38.123";

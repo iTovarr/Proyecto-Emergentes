@@ -3,8 +3,8 @@
 #include <Servo.h>
 
 // --- WiFi ---
-const char* ssid = "TOVAR";
-const char* pass = "29719073";
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
 
 // --- MQTT ---
 const char* mqtt_server = "161.132.38.123";
