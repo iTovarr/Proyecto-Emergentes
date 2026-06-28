@@ -1,0 +1,1591 @@
+[
+    {
+        "id": "b3369ac659491d3f",
+        "type": "tab",
+        "label": "Proyecto_Arduino",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "22038e253a65bf3e",
+        "type": "mqtt in",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sensores/Sensor_de_Huella",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "af980a3863fe2465",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "ff01089a62ec8c13",
+                "e8bb2f6e2c5b57c4",
+                "e2a4688ba4848bb5"
+            ]
+        ]
+    },
+    {
+        "id": "ff01089a62ec8c13",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 1",
+        "func": "// Function 1: recibe datos del tópico MQTT y prepara para MySQL y dashboard\nlet data = msg.payload;\n\nif (data.numero_id && data.hora && data.fecha) {\n    // Inserción en MySQL con parámetros nombrados\n    let insertMsg = {\n        topic: \"INSERT INTO Registro_Ingreso (numero_id, hora, fecha) VALUES (:numero_id, :hora, :fecha)\",\n        payload: {\n            numero_id: data.numero_id,\n            hora: data.hora,\n            fecha: data.fecha\n        }\n    };\n\n    // Fila para mostrar en el dashboard (usando id como identificador)\n    let filaMsg = {\n        payload: [{\n            id: \"-\", // MySQL asignará el valor real automáticamente\n            numero_id: data.numero_id,\n            hora: data.hora,\n            fecha: data.fecha\n        }]\n    };\n\n    // Salida 1 → MySQL, Salida 2 → ui_table\n    return [insertMsg, filaMsg];\n} else {\n    node.warn(\"⚠️ Datos incompletos en el payload MQTT\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 180,
+        "wires": [
+            [
+                "59ff7748ea5ac353"
+            ]
+        ]
+    },
+    {
+        "id": "e8bb2f6e2c5b57c4",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6929bb8a22548d06",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "3400d722548d390f",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 3",
+        "func": "// Function 3: recibe los resultados del MySQL y los imprime en el cuadro\nif (msg.payload && Array.isArray(msg.payload)) {\n    msg.payload = msg.payload.map(row => ({\n        id: row.id,              // usar id en vez de orden\n        numero_id: row.numero_id,\n        hora: row.hora,\n        fecha: row.fecha\n    }));\n    return msg;\n} else {\n    node.warn(\"⚠️ No se recibieron datos válidos desde MySQL\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 120,
+        "wires": [
+            [
+                "62ca86d166e3a33d"
+            ]
+        ]
+    },
+    {
+        "id": "ec8c731450feac4e",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "fe41ef46cd67b4c3",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 2",
+        "func": "// Function 2: arma la consulta SQL para obtener los últimos registros\nmsg.topic = \"SELECT * FROM Registro_Ingreso ORDER BY id DESC LIMIT 5\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 180,
+        "wires": [
+            [
+                "360f6581ad879629"
+            ]
+        ]
+    },
+    {
+        "id": "62db271cf8153694",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "e635cfcec6ecdb32",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1340,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6715d43c777868a5",
+        "type": "mqtt in",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sensores/Sensor_Proximidad",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "af980a3863fe2465",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 300,
+        "wires": [
+            [
+                "89dbad2bdc74996a"
+            ]
+        ]
+    },
+    {
+        "id": "7ca39afdb68f9068",
+        "type": "mqtt in",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sensores/Sensor_de_Agua",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "af980a3863fe2465",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 420,
+        "wires": [
+            [
+                "0488365ad5427d12"
+            ]
+        ]
+    },
+    {
+        "id": "b1261244f6c1961e",
+        "type": "mqtt in",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sensores/Sensor_de_Humo",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "af980a3863fe2465",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 540,
+        "wires": [
+            [
+                "86a854cd982acdd6"
+            ]
+        ]
+    },
+    {
+        "id": "0488365ad5427d12",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 4",
+        "func": "// Function 4: recibe dato del tópico MQTT Sensor_de_Agua y prepara para MySQL y dashboard\nlet data = msg.payload;\n\n// Si el mensaje llega como objeto con la propiedad valor_agua\nif (data && typeof data === \"object\" && data.valor_agua !== undefined) {\n    let valor = data.valor_agua;\n\n    // Inserción en MySQL con parámetros nombrados\n    let insertMsg = {\n        topic: \"INSERT INTO Registro_Humedad (valor_humedad) VALUES (:valor_humedad)\",\n        payload: {\n            valor_humedad: valor\n        }\n    };\n\n    // Fila para mostrar en el dashboard\n    let filaMsg = {\n        payload: [{\n            orden: \"-\", // MySQL asignará el número real\n            valor_humedad: valor\n        }]\n    };\n\n    // Salida 1 → MySQL, Salida 2 → ui_table\n    return [insertMsg, filaMsg];\n} else {\n    node.warn(\"⚠️ Payload inválido: se esperaba un objeto con valor_agua\");\n    return null;\n}\n\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 420,
+        "wires": [
+            [
+                "40379575e1cc6352"
+            ]
+        ]
+    },
+    {
+        "id": "c24baaf054fc98df",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 5",
+        "func": "// Function 5: arma la consulta SQL para obtener los últimos 5 registros de humedad\nmsg.topic = \"SELECT * FROM Registro_Humedad ORDER BY orden DESC LIMIT 5\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 420,
+        "wires": [
+            [
+                "ef3ee2b02562487d"
+            ]
+        ]
+    },
+    {
+        "id": "5f11380e9c031f9a",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 6",
+        "func": "// Function 6: toma el último valor del sensor de humedad y lo envía al gauge\nif (msg.payload && Array.isArray(msg.payload) && msg.payload.length > 0) {\n    let ultimo = msg.payload[0];\n    msg.payload = ultimo.valor_humedad;\n    return msg;\n} else {\n    node.warn(\"⚠️ No se encontraron datos válidos en la consulta MySQL\");\n    return null;\n}\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 420,
+        "wires": [
+            [
+                "979e3215dae6fd8b"
+            ]
+        ]
+    },
+    {
+        "id": "86a854cd982acdd6",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 7",
+        "func": "// Function 7: recibe dato del tópico MQTT Sensor_de_Humo y prepara para MySQL y dashboard\nlet data = msg.payload;\n\n// Si el mensaje llega como objeto con la propiedad valor_humo\nif (data && typeof data === \"object\" && data.valor_humo !== undefined) {\n    let valor = data.valor_humo;\n\n    // Inserción en MySQL con parámetros nombrados\n    let insertMsg = {\n        topic: \"INSERT INTO Registro_Humo (valor_humo) VALUES (:valor_humo)\",\n        payload: {\n            valor_humo: valor\n        }\n    };\n\n    // Fila para mostrar en el dashboard\n    let filaMsg = {\n        payload: [{\n            orden: \"-\", // MySQL asignará el número real\n            valor_humo: valor\n        }]\n    };\n\n    // Salida 1 → MySQL, Salida 2 → ui_table\n    return [insertMsg, filaMsg];\n} else {\n    node.warn(\"⚠️ Payload inválido: se esperaba un objeto con valor_humo\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 540,
+        "wires": [
+            [
+                "f12cc945647c5c3b"
+            ]
+        ]
+    },
+    {
+        "id": "5fca523589f8e656",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 8",
+        "func": "// Function 8: arma la consulta SQL para obtener los últimos 5 registros del sensor de humo\nmsg.topic = \"SELECT * FROM Registro_Humo ORDER BY orden DESC LIMIT 5\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 540,
+        "wires": [
+            [
+                "16c7f25c67edc7f7"
+            ]
+        ]
+    },
+    {
+        "id": "c64d942b129a1b3a",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 9",
+        "func": "// Function 9: toma el último valor del sensor de humo y lo envía al gauge\nif (msg.payload && Array.isArray(msg.payload) && msg.payload.length > 0) {\n    let ultimo = msg.payload[0];\n    msg.payload = ultimo.valor_humo;\n    return msg;\n} else {\n    node.warn(\"⚠️ No se encontraron datos válidos en la consulta MySQL\");\n    return null;\n}\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 600,
+        "wires": [
+            [
+                "886dce5f6b300fae"
+            ]
+        ]
+    },
+    {
+        "id": "89dbad2bdc74996a",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 10",
+        "func": "// Function 10: recibe dato del tópico MQTT Sensor_de_Proximidad y prepara para MySQL y dashboard\nlet data = msg.payload;\n\n// Si el mensaje llega como objeto con la propiedad distancia\nif (data && typeof data === \"object\" && data.distancia !== undefined) {\n    let valor = data.distancia;\n\n    // Inserción en MySQL con parámetros nombrados\n    let insertMsg = {\n        topic: \"INSERT INTO Registro_Proximidad (distancia) VALUES (:distancia)\",\n        payload: {\n            distancia: valor\n        }\n    };\n\n    // Fila para mostrar en el dashboard\n    let filaMsg = {\n        payload: [{\n            orden: \"-\", // MySQL asignará el número real\n            distancia: valor\n        }]\n    };\n\n    // Salida 1 → MySQL, Salida 2 → ui_table o chart\n    return [insertMsg, filaMsg];\n} else {\n    node.warn(\"⚠️ Payload inválido: se esperaba un objeto con distancia\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 300,
+        "wires": [
+            [
+                "08979c3a38cb4dcf"
+            ]
+        ]
+    },
+    {
+        "id": "f1bb7d524e893d6c",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 11",
+        "func": "// Function 11: arma la consulta SQL para obtener los últimos 5 registros del sensor de proximidad\nmsg.topic = \"SELECT * FROM Registro_Proximidad ORDER BY orden DESC LIMIT 5\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 300,
+        "wires": [
+            [
+                "4ccd044b5cc79ece"
+            ]
+        ]
+    },
+    {
+        "id": "1b4881c0c69c9c7a",
+        "type": "debug",
+        "z": "b3369ac659491d3f",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1560,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "5a65ab73b7caa0b0",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 12",
+        "func": "// Function 12: toma el último valor del sensor de proximidad y lo envía al chart\nif (msg.payload && Array.isArray(msg.payload) && msg.payload.length > 0) {\n    let ultimo = msg.payload[0];\n    msg.payload = ultimo.distancia;\n    return msg;\n} else {\n    node.warn(\"⚠️ No se encontraron datos válidos en la consulta MySQL\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 300,
+        "wires": [
+            [
+                "2f5ffe18da03873a"
+            ]
+        ]
+    },
+    {
+        "id": "08220a9a246e6a91",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Luces/Cuarto",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 570,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "daefd5feaabfe5e2",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Luces/Sala",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 570,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "bcea21ed3e06a7fc",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Luces/Garaje",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 570,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "878554f386e217ca",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Luces/Cocina",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 580,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "5c8a6765f09a0ca5",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Luces/Sala_Comedor",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 600,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "9f34518eb84346d3",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 13",
+        "func": "// Validamos el estado del switch (true = prendido, false = apagado)\nif (msg.payload === true) {\n    msg.payload = \"luz prendida\";\n} else {\n    msg.payload = \"luz apagada\";\n}\n\n// Retornamos el mensaje modificado para que pase al siguiente nodo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 740,
+        "wires": [
+            [
+                "daefd5feaabfe5e2"
+            ]
+        ]
+    },
+    {
+        "id": "f9e25f865f369290",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 14",
+        "func": "// Validamos el estado del switch (true = prendido, false = apagado)\nif (msg.payload === true) {\n    msg.payload = \"luz prendida\";\n} else {\n    msg.payload = \"luz apagada\";\n}\n\n// Retornamos el mensaje modificado para que pase al siguiente nodo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 860,
+        "wires": [
+            [
+                "bcea21ed3e06a7fc"
+            ]
+        ]
+    },
+    {
+        "id": "93ffd99750993629",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 15",
+        "func": "// Validamos el estado del switch (true = prendido, false = apagado)\nif (msg.payload === true) {\n    msg.payload = \"luz prendida\";\n} else {\n    msg.payload = \"luz apagada\";\n}\n\n// Retornamos el mensaje modificado para que pase al siguiente nodo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 980,
+        "wires": [
+            [
+                "878554f386e217ca"
+            ]
+        ]
+    },
+    {
+        "id": "e46ec3f7c1aeb026",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 16",
+        "func": "// Validamos el estado del switch (true = prendido, false = apagado)\nif (msg.payload === true) {\n    msg.payload = \"luz prendida\";\n} else {\n    msg.payload = \"luz apagada\";\n}\n\n// Retornamos el mensaje modificado para que pase al siguiente nodo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1100,
+        "wires": [
+            [
+                "5c8a6765f09a0ca5"
+            ]
+        ]
+    },
+    {
+        "id": "6f04f2104c38e14f",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 17",
+        "func": "// Validamos el estado del switch (true = prendido, false = apagado)\nif (msg.payload === true) {\n    msg.payload = \"luz prendida\";\n} else {\n    msg.payload = \"luz apagada\";\n}\n\n// Retornamos el mensaje modificado para que pase al siguiente nodo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1220,
+        "wires": [
+            [
+                "08220a9a246e6a91"
+            ]
+        ]
+    },
+    {
+        "id": "62ca86d166e3a33d",
+        "type": "ui_table",
+        "z": "b3369ac659491d3f",
+        "group": "c76d87e45e4a66c4",
+        "name": "Tabla_Huellas",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "columns": [],
+        "outputs": 0,
+        "cts": false,
+        "x": 1580,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "b0343fdd2b3c8a40",
+        "type": "ui_switch",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "label": "Sala",
+        "tooltip": "",
+        "group": "417f1ec882310baf",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 170,
+        "y": 740,
+        "wires": [
+            [
+                "d4f3bb894fc117e6",
+                "9f34518eb84346d3"
+            ]
+        ]
+    },
+    {
+        "id": "eb4c8d7c82545584",
+        "type": "ui_switch",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "label": "Estudio",
+        "tooltip": "",
+        "group": "417f1ec882310baf",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 180,
+        "y": 860,
+        "wires": [
+            [
+                "c526bc7cb7b36a3f",
+                "f9e25f865f369290"
+            ]
+        ]
+    },
+    {
+        "id": "86168aee61de9af1",
+        "type": "ui_switch",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "label": "Cocina",
+        "tooltip": "",
+        "group": "417f1ec882310baf",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 180,
+        "y": 980,
+        "wires": [
+            [
+                "e865a9970ec7f46a",
+                "93ffd99750993629"
+            ]
+        ]
+    },
+    {
+        "id": "a5953b0e450c65ed",
+        "type": "ui_switch",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "label": "Cuarto 2",
+        "tooltip": "",
+        "group": "417f1ec882310baf",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 180,
+        "y": 1100,
+        "wires": [
+            [
+                "4aa23c24f5ba9e5d",
+                "e46ec3f7c1aeb026"
+            ]
+        ]
+    },
+    {
+        "id": "e165d3cc835b92ed",
+        "type": "ui_switch",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "label": "Cuarto 1",
+        "tooltip": "",
+        "group": "417f1ec882310baf",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 180,
+        "y": 1220,
+        "wires": [
+            [
+                "30d4097b694971d1",
+                "6f04f2104c38e14f"
+            ]
+        ]
+    },
+    {
+        "id": "979e3215dae6fd8b",
+        "type": "ui_gauge",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "group": "eeb7047d20f9b55b",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "compass",
+        "title": "Humedad",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1560,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "886dce5f6b300fae",
+        "type": "ui_gauge",
+        "z": "b3369ac659491d3f",
+        "name": "Humo",
+        "group": "7b679ad567915a14",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "compass",
+        "title": "Humo",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1550,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "2f5ffe18da03873a",
+        "type": "ui_chart",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "group": "614c267029eae111",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1550,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4f3bb894fc117e6",
+        "type": "ui_led",
+        "z": "b3369ac659491d3f",
+        "order": 4,
+        "group": "6ceb765ac447d21e",
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#f7f7f7",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#0b1a66",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 350,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "c526bc7cb7b36a3f",
+        "type": "ui_led",
+        "z": "b3369ac659491d3f",
+        "order": 3,
+        "group": "6ceb765ac447d21e",
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#f5f5f5",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#06347f",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 350,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "e865a9970ec7f46a",
+        "type": "ui_led",
+        "z": "b3369ac659491d3f",
+        "order": 5,
+        "group": "6ceb765ac447d21e",
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#f7f7f8",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#001580",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 350,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "4aa23c24f5ba9e5d",
+        "type": "ui_led",
+        "z": "b3369ac659491d3f",
+        "order": 2,
+        "group": "6ceb765ac447d21e",
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#f7f7f7",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#001580",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 350,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "30d4097b694971d1",
+        "type": "ui_led",
+        "z": "b3369ac659491d3f",
+        "order": 1,
+        "group": "6ceb765ac447d21e",
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#f5f4f4",
+                "value": "false",
+                "valueType": "bool"
+            },
+            {
+                "color": "#090d77",
+                "value": "true",
+                "valueType": "bool"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "",
+        "x": 350,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "34bacee1d28d9853",
+        "type": "node-red-contrib-whatsapp-cmb-send-message",
+        "z": "b3369ac659491d3f",
+        "name": "Bot_Whatsapp",
+        "credtype": "account",
+        "account": "e47aef353e55acb1",
+        "text": "Alerta",
+        "phonenumbervalue": "",
+        "apikeyvalue": "",
+        "apikeyinputtypemessage": "msg",
+        "phonenumberinputtypemessage": "msg",
+        "inputtypemessage": "str",
+        "rejectssl": false,
+        "x": 1580,
+        "y": 540,
+        "wires": [
+            [
+                "9036e31a33a9f39b"
+            ]
+        ]
+    },
+    {
+        "id": "0354a0caa434144c",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 18",
+        "func": "// Function 18: envía alerta por WhatsApp cuando se detecta humo\nif (msg.payload && Array.isArray(msg.payload) && msg.payload.length > 0) {\n    let ultimo = msg.payload[0];\n    let valor = ultimo.valor_humo;\n\n    if (valor > 0) {\n        // Mensaje de alerta\n        msg.payload = \"🚨 Alerta: Se ha detectado humo en el área. Valor: \" + valor;\n        return msg;\n    } else {\n        // No hay humo, no enviar mensaje\n        return null;\n    }\n} else {\n    node.warn(\"⚠️ No se encontraron datos válidos en la consulta MySQL\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 540,
+        "wires": [
+            [
+                "34bacee1d28d9853"
+            ]
+        ]
+    },
+    {
+        "id": "093a14933b1f5eb5",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sistema/Alarma",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 2100,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "9036e31a33a9f39b",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 19",
+        "func": "// Function 19: activa el sistema de alarma cuando se envía alerta\nif (msg.payload && typeof msg.payload === \"string\" && msg.payload.includes(\"Alerta\")) {\n    // Mensaje para el tópico del sistema de alarma\n    msg.topic = \"Sistema/Alarma\";\n    msg.payload = \"Alarma_Activada\";\n    return msg;\n} else {\n    // No hay alerta, no activar alarma\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1850,
+        "y": 540,
+        "wires": [
+            [
+                "093a14933b1f5eb5"
+            ]
+        ]
+    },
+    {
+        "id": "59ff7748ea5ac353",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 690,
+        "y": 180,
+        "wires": [
+            [
+                "fe41ef46cd67b4c3"
+            ]
+        ]
+    },
+    {
+        "id": "08979c3a38cb4dcf",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 690,
+        "y": 300,
+        "wires": [
+            [
+                "f1bb7d524e893d6c"
+            ]
+        ]
+    },
+    {
+        "id": "360f6581ad879629",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 1110,
+        "y": 180,
+        "wires": [
+            [
+                "3400d722548d390f",
+                "e237a2dc738a0240"
+            ]
+        ]
+    },
+    {
+        "id": "40379575e1cc6352",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 690,
+        "y": 420,
+        "wires": [
+            [
+                "c24baaf054fc98df"
+            ]
+        ]
+    },
+    {
+        "id": "f12cc945647c5c3b",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 690,
+        "y": 540,
+        "wires": [
+            [
+                "5fca523589f8e656"
+            ]
+        ]
+    },
+    {
+        "id": "4ccd044b5cc79ece",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 1110,
+        "y": 300,
+        "wires": [
+            [
+                "5a65ab73b7caa0b0"
+            ]
+        ]
+    },
+    {
+        "id": "ef3ee2b02562487d",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 1110,
+        "y": 420,
+        "wires": [
+            [
+                "5f11380e9c031f9a",
+                "4a037ace9511cf49"
+            ]
+        ]
+    },
+    {
+        "id": "16c7f25c67edc7f7",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 1110,
+        "y": 540,
+        "wires": [
+            [
+                "c64d942b129a1b3a",
+                "0354a0caa434144c"
+            ]
+        ]
+    },
+    {
+        "id": "6122fb3ca0ac5983",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sistema/Humedad",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 1590,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "cefceff852aa3846",
+        "type": "mqtt out",
+        "z": "b3369ac659491d3f",
+        "name": "",
+        "topic": "Sistema/Puerta",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "af980a3863fe2465",
+        "x": 1580,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "e237a2dc738a0240",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 20",
+        "func": "// Function 20: enviar mensaje al tópico Sistema/Puerta\n// Se ejecuta cuando se guarda un nuevo registro de huella\n\nlet nuevoDato = msg.payload; // datos del registro recién insertado\nlet mensaje = \"Puerta_Abierta\"; // palabra que Arduino espera\n\n// Publicar al tópico MQTT\nmsg.topic = \"Sistema/Puerta\";\nmsg.payload = mensaje;\n\nnode.warn(\"🚪 Nuevo registro detectado, puerta abierta\");\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 180,
+        "wires": [
+            [
+                "cefceff852aa3846"
+            ]
+        ]
+    },
+    {
+        "id": "4a037ace9511cf49",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 21",
+        "func": "// Function 21: enviar mensaje al tópico Sistema/Humedad\n// Se ejecuta cuando se guarda un nuevo dato de humedad\n\nif (msg.payload && Array.isArray(msg.payload) && msg.payload.length > 0) {\n    // Tomar el último registro del resultado MySQL\n    let ultimo = msg.payload[msg.payload.length - 1];\n    let valor = ultimo.valor_humedad;\n\n    // Evaluar el valor de humedad\n    if (valor > 0) {\n        msg.topic = \"Sistema/Humedad\";\n        msg.payload = \"Techo_Activado\";\n        node.warn(\"🌧️ Humedad detectada (\" + valor + \"), techo activado\");\n    } else {\n        msg.topic = \"Sistema/Humedad\";\n        msg.payload = \"Techo_Desactivado\";\n        node.warn(\"🌤️ Sin humedad (\" + valor + \"), techo desactivado\");\n    }\n\n    return msg;\n} else {\n    // Si no hay datos válidos, enviar desactivado\n    msg.topic = \"Sistema/Humedad\";\n    msg.payload = \"Techo_Desactivado\";\n    node.warn(\"⚠️ No se encontraron datos válidos, se envía desactivado\");\n    return msg;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 480,
+        "wires": [
+            [
+                "6122fb3ca0ac5983",
+                "1b4881c0c69c9c7a"
+            ]
+        ]
+    },
+    {
+        "id": "e2a4688ba4848bb5",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 22",
+        "func": "// Function 22: registra intentos de acceso denegado\nlet data = msg.payload;\n\n// Verificar si faltan datos o el formato es incorrecto\nif (!data || !data.numero_id || !data.hora || !data.fecha) {\n    // Incrementar contador local para orden\n    context.set(\"contador\", context.get(\"contador\") || 0);\n    let orden = context.get(\"contador\") + 1;\n    context.set(\"contador\", orden);\n\n    // Obtener fecha y hora actual\n    let ahora = new Date();\n    let fecha = ahora.toISOString().split(\"T\")[0];\n    let hora = ahora.toTimeString().split(\" \")[0];\n    let mensaje = \"Intento de acceso denegado\";\n\n    // Mensaje para MySQL (usa parámetros nombrados)\n    let insertMsg = {\n        topic: \"INSERT INTO Registro_Fallas (fecha, hora, mensaje) VALUES (:fecha, :hora, :mensaje)\",\n        payload: {\n            fecha: fecha,\n            hora: hora,\n            mensaje: mensaje\n        }\n    };\n\n    // Mensaje para dashboard\n    let filaMsg = {\n        payload: [{\n            orden: orden,\n            fecha: fecha,\n            hora: hora,\n            mensaje: mensaje\n        }]\n    };\n\n    // Salida 1 → MySQL, Salida 2 → ui_table\n    return [insertMsg, filaMsg];\n} else {\n    // Si los datos son válidos, no registrar aquí\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 240,
+        "wires": [
+            [
+                "951f321c3be975b0",
+                "6929bb8a22548d06"
+            ]
+        ]
+    },
+    {
+        "id": "951f321c3be975b0",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 690,
+        "y": 240,
+        "wires": [
+            [
+                "62db271cf8153694",
+                "fa34f38e5f077f8b"
+            ]
+        ]
+    },
+    {
+        "id": "fef1644bc6191d09",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 23",
+        "func": "if (msg.payload && Array.isArray(msg.payload)) {\n    msg.payload = msg.payload.map(row => ({\n        orden: row.orden,\n        fecha: row.fecha,\n        hora: row.hora,\n        mensaje: row.mensaje\n    }));\n    return msg;\n} else {\n    node.warn(\"⚠️ No se recibieron datos válidos para la tabla de fallas\");\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 240,
+        "wires": [
+            [
+                "0933d6c8c93d3ad8"
+            ]
+        ]
+    },
+    {
+        "id": "0933d6c8c93d3ad8",
+        "type": "ui_table",
+        "z": "b3369ac659491d3f",
+        "group": "c76d87e45e4a66c4",
+        "name": "Tabla_Fallas",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "columns": [],
+        "outputs": 0,
+        "cts": false,
+        "x": 1570,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "fa34f38e5f077f8b",
+        "type": "function",
+        "z": "b3369ac659491d3f",
+        "name": "function 24",
+        "func": "msg.topic = \"SELECT * FROM Registro_Fallas ORDER BY orden DESC LIMIT 5\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 240,
+        "wires": [
+            [
+                "bc51ca612cda3078",
+                "ec8c731450feac4e"
+            ]
+        ]
+    },
+    {
+        "id": "bc51ca612cda3078",
+        "type": "MySQL-Connector",
+        "z": "b3369ac659491d3f",
+        "server": "f1696a0d3f30f7a0",
+        "name": "",
+        "x": 1110,
+        "y": 240,
+        "wires": [
+            [
+                "fef1644bc6191d09",
+                "e635cfcec6ecdb32"
+            ]
+        ]
+    },
+    {
+        "id": "af980a3863fe2465",
+        "type": "mqtt-broker",
+        "name": "Servidor_MQTT_Nube",
+        "broker": "161.132.54.24",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c76d87e45e4a66c4",
+        "type": "ui_group",
+        "name": "Sensor de Huella",
+        "tab": "76f3a72e369b4a78",
+        "order": 2,
+        "disp": true,
+        "width": "10",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "417f1ec882310baf",
+        "type": "ui_group",
+        "name": "Luces",
+        "tab": "5c09ee71e8afab57",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "eeb7047d20f9b55b",
+        "type": "ui_group",
+        "name": "Sensor de Agua",
+        "tab": "76f3a72e369b4a78",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "7b679ad567915a14",
+        "type": "ui_group",
+        "name": "Sensor de Humo",
+        "tab": "76f3a72e369b4a78",
+        "order": 4,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "614c267029eae111",
+        "type": "ui_group",
+        "name": "Sensor de Proximidad",
+        "tab": "76f3a72e369b4a78",
+        "order": 5,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "6ceb765ac447d21e",
+        "type": "ui_group",
+        "name": "Leds_Casa",
+        "tab": "5c09ee71e8afab57",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "e47aef353e55acb1",
+        "type": "node-red-contrib-whatsapp-cmb-account",
+        "name": "BOT_MMansilla"
+    },
+    {
+        "id": "f1696a0d3f30f7a0",
+        "type": "MySQL-Server-Connector",
+        "name": "Mysql",
+        "host": "161.132.54.24",
+        "port": "3306",
+        "user": "",
+        "password": "",
+        "tls": false,
+        "database": "Proyecto_Arduino"
+    },
+    {
+        "id": "76f3a72e369b4a78",
+        "type": "ui_tab",
+        "name": "Visualización_de_Datos",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "5c09ee71e8afab57",
+        "type": "ui_tab",
+        "name": "Luces_del_Hogar",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "bdd472034bae3ebe",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-node-ui-table": "0.4.5",
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-ui-led": "0.4.11",
+            "node-red-contrib-whatsapp-cmb": "1.0.3",
+            "node-red-contrib-mysql-config": "1.0.4"
+        }
+    }
+]
